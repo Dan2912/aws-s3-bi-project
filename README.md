@@ -1,6 +1,6 @@
 # Projeto de Análise Financeira de Transações de Cartão no Power BI
 
-Este projeto tem como objetivo construir uma solução completa para análise de dados financeiros de transações de cartão, integrando AWS S3, Data Warehouse (DW) e Power BI para geração de relatórios e dashboards intuitivos.
+Este projeto tem como objetivo construir uma solução completa para análise de dados financeiros de transações de cartão, integrando **Google Cloud Storage (GCS)**, Data Warehouse (DW) e Power BI para geração de relatórios e dashboards intuitivos.
 
 ---
 
@@ -15,31 +15,42 @@ Você pode visualizar o desenho da arquitetura detalhada neste diagrama:
 
 ## Etapas do Projeto
 
-1. **Criação do Bucket S3 e Configuração IAM**  
-   - Configuração do bucket S3 na AWS para armazenamento seguro dos arquivos de transações.  
-   - Definição de políticas de segurança via IAM para controle de acesso.
+1. **Criação do Bucket no Google Cloud Storage e Configuração IAM**  
+   - Configuração do bucket GCS para armazenamento seguro dos arquivos de transações.  
+   - Definição de permissões e papéis (roles) via IAM para controle de acesso.
 
-2. **Upload dos Arquivos para S3 via Google Colab**  
-   - Script Python usando a biblioteca `boto3` para importar arquivos locais e enviá-los para o bucket S3.  
-   - Exemplo de código para upload:
+2. **Upload dos Arquivos para o Bucket GCS via Google Colab**  
+   - Script Python utilizando a biblioteca `google-cloud-storage` para importar arquivos locais e enviá-los para o bucket GCS.  
 
-   ```python
-   import os
-   import boto3
+### Exemplo de código para upload:
 
-   # Configura as credenciais AWS via variáveis de ambiente (NUNCA deixe chaves hardcoded em produção)
-   os.environ["AWS_ACCESS_KEY_ID"] = "sua-chave"
-   os.environ["AWS_SECRET_ACCESS_KEY"] = "sua-chave"
+```python
+from google.cloud import storage
+import os
 
-   # Cria cliente S3
-   s3 = boto3.client('s3', region_name='us-east-1')
+# Defina o caminho do arquivo JSON de credenciais da conta de serviço do Google Cloud
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/path/para/sua/conta-servico.json"
 
-   bucket_name = 'projetos-bi-01'
-   arquivo_local = '/content/transacoes_02.csv'
-   arquivo_no_s3 = 'pasta/transacoes1.csv'
+# Inicializa o cliente do Google Cloud Storage
+client = storage.Client()
 
-   # Upload do arquivo para o bucket S3
-   s3.upload_file(arquivo_local, bucket_name, arquivo_no_s3)
+bucket_name = 'projetos-bi-01'
+pasta_destino = 'pasta/'
+
+# Arquivo local que será enviado
+arquivo_local = '/content/transacoes_02.csv'
+nome_arquivo_no_bucket = pasta_destino + 'transacoes1.csv'
+
+# Referência ao bucket
+bucket = client.bucket(bucket_name)
+
+# Cria um blob no bucket com o nome desejado
+blob = bucket.blob(nome_arquivo_no_bucket)
+
+# Upload do arquivo local para o bucket
+blob.upload_from_filename(arquivo_local)
+
+print(f"✅ Arquivo {arquivo_local} enviado para gs://{bucket_name}/{nome_arquivo_no_bucket}")
 
    print("Upload concluído com sucesso!")
 
