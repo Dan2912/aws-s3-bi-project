@@ -1,1 +1,27 @@
+import os
+import boto3
+
+# Configura as credenciais AWS via variáveis de ambiente
+# IMPORTANTE: Nunca deixe as chaves hardcoded em código para produção!
+os.environ["AWS_ACCESS_KEY_ID"] = "sua-chave"          # Substitua pela sua AWS Access Key ID
+os.environ["AWS_SECRET_ACCESS_KEY"] = "sua-chave"      # Substitua pela sua AWS Secret Access Key
+
+# Cria um cliente do serviço S3 da AWS, definindo a região (us-east-1)
+s3 = boto3.client('s3', region_name='us-east-1')
+
+# Nome do bucket S3 para onde o arquivo será enviado
+bucket_name = 'projetos-bi-01'
+
+# Caminho local do arquivo que será enviado
+arquivo_local = '/content/transacoes_02.csv'
+
+# Caminho (chave) dentro do bucket onde o arquivo ficará armazenado
+# Pode ser apenas o nome do arquivo ou com pastas, ex: 'pasta1/arquivo.csv'
+arquivo_no_s3 = 'pasta/transacoes1.csv'
+
+# Função que realiza o upload do arquivo local para o bucket e caminho especificados
+s3.upload_file(arquivo_local, bucket_name, arquivo_no_s3)
+
+# Mensagem de confirmação quando o upload for concluído com sucesso
+print("Upload concluído com sucesso!")
 
